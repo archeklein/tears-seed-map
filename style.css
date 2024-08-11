@@ -1,0 +1,31 @@
+:root {
+    --bg-colour: #2e2e2e;
+    --map-bg-colour: #000000;
+}
+
+#map-container {
+    height: 100vh;
+    width: 100vw;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: var(--map-bg-colour);
+}
+
+#map {
+    height: 100%;
+    width: 100%;
+    background-color: var(--map-bg-colour);
+}
+
+.sticky-top {
+    display: inline-block;
+    position: absolute;
+    right: 0;
+    left: auto;
+    padding: 8px;
+}
+
+.leaflet-popup-content {
+    margin: 12px 16px;
+}
