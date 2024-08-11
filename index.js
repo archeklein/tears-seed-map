@@ -61,7 +61,8 @@ window.addEventListener("load", () => {
                 <div><b>Y:</b> ${y}</div>
                 <div><b>Z:</b> ${height}</div>
             </div>
-            <button class="btn btn-link btn-sm" id="found-btn-${id}">Done</button>
+            <button class="btn btn-sm" id="found-btn-${id}">Check</button>
+            <button class="btn btn-danger btn-sm" id="not-found-btn-${id}">Uncheck</button>
           </div>
       `
     );
@@ -75,7 +76,7 @@ window.addEventListener("load", () => {
   koroks.forEach((korok, index) => {
     const marker = getMarker(korok);
     if (foundIds.includes(index.toString())) {
-      marker.setOpacity(0.1);
+      marker.setOpacity(0.2);
       foundMarkers.push(index.toString());
     }
     marker.addTo(map);
@@ -84,11 +85,19 @@ window.addEventListener("load", () => {
   map.on("popupopen", (e) => {
     const marker = e.popup._source;
     $("[id^='found-btn-']").click((e) => {
-      marker.setOpacity(0.1);
+      marker.setOpacity(0.2);
       marker.closePopup();
 
       const currentId = e.target.id.split("-")[2];
       foundMarkers.push(currentId);
+    });
+
+    $("[id^='not-found-btn-']").click((e) => {
+      marker.setOpacity(1);
+      marker.closePopup();
+
+      const currentId = e.target.id.split("-")[3];
+      foundMarkers = foundMarkers.filter((id) => id !== currentId);
     });
   });
 
