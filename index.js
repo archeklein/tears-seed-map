@@ -2,7 +2,7 @@
 
 window.addEventListener("load", () => {
   const searchParams = new URLSearchParams(window.location.search);
-  const foundIds = searchParams.get("done").split(",");
+  const foundIds = searchParams.get("found")?.split(",") || [];
 
   // Initialize the map using Leaflet.js
   var map = L.map("map", {
@@ -14,9 +14,6 @@ window.addEventListener("load", () => {
     cursor: true,
     crs: L.CRS.Simple, // Specifies that the map uses simple Cartesian coordinates
   });
-
-  // Array to hold all markers
-  var markers = [];
 
   // Define bounds for map
   let leftBottom = map.unproject([-6000, 5000], 0);
@@ -72,14 +69,33 @@ window.addEventListener("load", () => {
     return marker;
   };
 
-  koroks.forEach((korok) => {
+  // Array to hold all markers
+  var foundMarkers = [];
+
+  koroks.forEach((korok, index) => {
     const marker = getMarker(korok);
+    if (foundIds.includes(index.toString())) {
+      marker.setOpacity(0.1);
+      foundMarkers.push(index.toString());
+    }
     marker.addTo(map);
   });
 
-  $('button[id^="found-btn-"]').click(() => {
-    console.log();
-    console.log("pew");
+  map.on("popupopen", (e) => {
+    const marker = e.popup._source;
+    $("[id^='found-btn-']").click((e) => {
+      marker.setOpacity(0.1);
+      marker.closePopup();
+
+      const currentId = e.target.id.split("-")[2];
+      foundMarkers.push(currentId);
+    });
+  });
+
+  $("#refresh-url").click(() => {
+    console.log(foundMarkers);
+    const baseUrl = window.location.href.split("?")[0];
+    window.location.href = baseUrl + `?found=${foundMarkers.join(",")}`;
   });
 });
 
