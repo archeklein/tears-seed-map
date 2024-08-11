@@ -10,10 +10,16 @@ window.addEventListener("load", () => {
     minZoom: -7,
     maxZoom: 4,
     center: [0, 0],
-    zoom: -4,
+    zoom: -3,
     cursor: true,
     crs: L.CRS.Simple, // Specifies that the map uses simple Cartesian coordinates
   });
+
+  map.on("resize");
+
+  const markerLayer = new L.FeatureGroup();
+  map.addLayer(markerLayer);
+  var showMarkers = true;
 
   // Define bounds for map
   let leftBottom = map.unproject([-6000, 5000], 0);
@@ -47,6 +53,24 @@ window.addEventListener("load", () => {
   $("#show-layer-sky").click(showSky);
   // Event listener for 'show-layer-surface' button click
   $("#show-layer-surface").click(showSurface).trigger("click"); // Trigger the click event immediately on page load
+  $("#toggle-markers").click(() => {
+    if (showMarkers) {
+      map.removeLayer(markerLayer);
+    } else {
+      map.addLayer(markerLayer);
+    }
+    showMarkers = !showMarkers;
+  });
+
+  map.on("zoomend", () => {
+    if (map.getZoom() < -3) {
+      map.removeLayer(markerLayer);
+      showMarkers = false;
+    } else {
+      map.addLayer(markerLayer);
+      showMarkers = true;
+    }
+  });
 
   const getMarker = ({ x, y, height, id }) => {
     const coordinates = new L.LatLng(y, x);
@@ -70,7 +94,6 @@ window.addEventListener("load", () => {
     return marker;
   };
 
-  // Array to hold all markers
   var foundMarkers = [];
 
   koroks.forEach((korok, index) => {
@@ -79,7 +102,7 @@ window.addEventListener("load", () => {
       marker.setOpacity(0.2);
       foundMarkers.push(index.toString());
     }
-    marker.addTo(map);
+    marker.addTo(markerLayer);
   });
 
   map.on("popupopen", (e) => {
