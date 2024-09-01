@@ -2,9 +2,8 @@
 
 window.addEventListener("load", () => {
   const searchParams = new URLSearchParams(window.location.search);
-  const foundIds = searchParams.get("found")?.split(",") || [];
-
-  console.log(document.cookie);
+  const foundIds =
+    document.cookie.split(",") || searchParams.get("found")?.split(",") || [];
 
   // Initialize the map using Leaflet.js
   var map = L.map("map", {
@@ -12,7 +11,7 @@ window.addEventListener("load", () => {
     minZoom: -7,
     maxZoom: 4,
     center: [0, 0],
-    zoom: parseInt(document.cookie) || -3,
+    zoom: -3,
     cursor: true,
     crs: L.CRS.Simple, // Specifies that the map uses simple Cartesian coordinates
   });
@@ -70,7 +69,6 @@ window.addEventListener("load", () => {
   });
 
   map.on("zoomend", () => {
-    document.cookie = `${map.getZoom()}`;
     if (map.getZoom() < -3) {
       map.removeLayer(markerSurfaceLayer);
       showMarkers = false;
@@ -126,6 +124,7 @@ window.addEventListener("load", () => {
 
       const currentId = e.target.id.split("-")[2];
       foundMarkers.push(currentId);
+      document.cookie = foundMarkers.join(",");
     });
 
     $("[id^='not-found-btn-']").click((e) => {
@@ -134,11 +133,11 @@ window.addEventListener("load", () => {
 
       const currentId = e.target.id.split("-")[3];
       foundMarkers = foundMarkers.filter((id) => id !== currentId);
+      document.cookie = foundMarkers.join(",");
     });
   });
 
   $("#refresh-url").click(() => {
-    console.log(foundMarkers);
     const baseUrl = window.location.href.split("?")[0];
     window.location.href = baseUrl + `?found=${foundMarkers.join(",")}`;
   });
