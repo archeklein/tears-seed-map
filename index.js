@@ -4,13 +4,15 @@ window.addEventListener("load", () => {
   const searchParams = new URLSearchParams(window.location.search);
   const foundIds = searchParams.get("found")?.split(",") || [];
 
+  console.log(document.cookie);
+
   // Initialize the map using Leaflet.js
   var map = L.map("map", {
     preferCanvas: true,
     minZoom: -7,
     maxZoom: 4,
     center: [0, 0],
-    zoom: parseInt(document.cookie) || "-3",
+    zoom: parseInt(document.cookie) || -3,
     cursor: true,
     crs: L.CRS.Simple, // Specifies that the map uses simple Cartesian coordinates
   });
@@ -109,7 +111,6 @@ window.addEventListener("load", () => {
       foundMarkers.push(index.toString());
     }
 
-    console.log(marker.height);
     if (korok.height < 900) {
       marker.addTo(markerSurfaceLayer);
     } else {
