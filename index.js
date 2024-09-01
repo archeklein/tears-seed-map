@@ -10,15 +10,16 @@ window.addEventListener("load", () => {
     minZoom: -7,
     maxZoom: 4,
     center: [0, 0],
-    zoom: -3,
+    zoom: parseInt(document.cookie) || "-3",
     cursor: true,
     crs: L.CRS.Simple, // Specifies that the map uses simple Cartesian coordinates
   });
 
   map.on("resize");
 
-  const markerLayer = new L.FeatureGroup();
-  map.addLayer(markerLayer);
+  const markerSurfaceLayer = new L.FeatureGroup();
+  const markerSkyLayer = new L.FeatureGroup();
+  map.addLayer(markerSurfaceLayer);
   var showMarkers = true;
 
   // Define bounds for map
@@ -38,7 +39,9 @@ window.addEventListener("load", () => {
   const showSurface = () => {
     // Show surface layer, hide other layers
     map.removeLayer(skyLayerBackgroundImage);
+    map.removeLayer(markerSkyLayer);
     surfaceLayerBackgroundImage.addTo(map);
+    map.addLayer(markerSurfaceLayer);
     map.removeLayer(depthsLayerBackgroundImage);
   };
 
@@ -46,6 +49,8 @@ window.addEventListener("load", () => {
     // Show sky layer, hide other layers
     skyLayerBackgroundImage.addTo(map);
     map.removeLayer(surfaceLayerBackgroundImage);
+    map.removeLayer(markerSurfaceLayer);
+    map.addLayer(markerSkyLayer);
     map.removeLayer(depthsLayerBackgroundImage);
   };
 
@@ -55,19 +60,20 @@ window.addEventListener("load", () => {
   $("#show-layer-surface").click(showSurface).trigger("click"); // Trigger the click event immediately on page load
   $("#toggle-markers").click(() => {
     if (showMarkers) {
-      map.removeLayer(markerLayer);
+      map.removeLayer(markerSurfaceLayer);
     } else {
-      map.addLayer(markerLayer);
+      map.addLayer(markerSurfaceLayer);
     }
     showMarkers = !showMarkers;
   });
 
   map.on("zoomend", () => {
+    document.cookie = `${map.getZoom()}`;
     if (map.getZoom() < -3) {
-      map.removeLayer(markerLayer);
+      map.removeLayer(markerSurfaceLayer);
       showMarkers = false;
     } else {
-      map.addLayer(markerLayer);
+      map.addLayer(markerSurfaceLayer);
       showMarkers = true;
     }
   });
@@ -102,7 +108,13 @@ window.addEventListener("load", () => {
       marker.setOpacity(0.2);
       foundMarkers.push(index.toString());
     }
-    marker.addTo(markerLayer);
+
+    console.log(marker.height);
+    if (korok.height < 900) {
+      marker.addTo(markerSurfaceLayer);
+    } else {
+      marker.addTo(markerSkyLayer);
+    }
   });
 
   map.on("popupopen", (e) => {
